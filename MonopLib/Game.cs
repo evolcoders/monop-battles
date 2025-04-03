@@ -126,7 +126,7 @@ public class Game
         MethodsTrace.Clear();
 
         if (CurrPlayer.IsBot)
-            GameManager.BotActionsWhenFinishStep(this);
+            BotActionsWhenFinishStep(this);
 
         Console.WriteLine($"finished round {Round}");
 
@@ -143,6 +143,29 @@ public class Game
         State = GameState.RunBuildOrTrade;
         CreateNewRoundLog(Round, Selected, CurrPlayer.Pos);
 
+    }
+
+    public static bool BotActionsBeforeRoll(Game g)
+    {
+        if (TradeLogic.TryDoTrade(g))
+            TradeManager.RunTradeJob(g);
+        return false;
+    }
+
+    public static void BotActionsWhenFinishStep(Game g)
+    {
+        var cells = g.Map.MonopGroupsByUser(g.CurrPlayer.Id);
+        if (cells.Any())
+        {
+            var sum = 0.8 * g.CalcPlayerAssets(g.CurrPlayer.Id, false);
+            g.CellsLogic.BuildHouses((int)sum);
+            var text = String.Join(",", cells.SelectMany(gr => gr.Select(c => $"{c.Id}_{c.HousesCount}")));
+            g.AddRoundMessage($"_build {text}");
+        }
+        else
+        {
+            var unmortCells = g.CellsLogic.UnmortgageSell();
+        }
     }
 
     public void GoToNextRound()

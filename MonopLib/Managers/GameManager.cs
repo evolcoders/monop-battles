@@ -1,7 +1,6 @@
 using MonopLib.BotBrains;
-using MonopLib.Managers;
 
-namespace MonopLib;
+namespace MonopLib.Managers;
 
 public class GameManager
 {
@@ -79,26 +78,5 @@ public class GameManager
         }
     }
 
-    public static bool BotActionsBeforeRoll(Game g)
-    {
-        if (TradeLogic.TryDoTrade(g))
-            TradeManager.RunTradeJob(g);
-        return false;
-    }
 
-    public static void BotActionsWhenFinishStep(Game g)
-    {
-        var cells = g.Map.MonopGroupsByUser(g.CurrPlayer.Id);
-        if (cells.Any())
-        {
-            var sum = 0.8 * g.CalcPlayerAssets(g.CurrPlayer.Id, false);
-            g.CellsLogic.BuildHouses((int)sum);
-            var text = String.Join(",", cells.SelectMany(gr => gr.Select(c => $"{c.Id}_{c.HousesCount}")));
-            g.AddRoundMessage($"_build {text}");
-        }
-        else
-        {
-            var unmortCells = g.CellsLogic.UnmortgageSell();
-        }
-    }
 }
