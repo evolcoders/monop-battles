@@ -4,13 +4,12 @@ namespace MonopLib.Managers;
 
 public class PlayerManager
 {
-    public static bool OnlyPay(Game g, int amount)
+    public static bool OnlyPay(Game g, Player pl, int amount)
     {
-        var p = g.CurrPlayer;
-        bool ok = p.IsBot ? CellsLogic.MortgageSell(g, p, amount) : p.Money >= amount;
+        bool ok = g.CellsLogic.MortgageSell(pl, amount);
         if (ok)
         {
-            p.Money -= amount;
+            pl.Money -= amount;
             return true;
         }
         return false;
@@ -21,7 +20,7 @@ public class PlayerManager
         var p = g.CurrPlayer;
         p.UpdateTimer();
         var amount = g.PayAmount;
-        bool ok = p.IsBot ? CellsLogic.MortgageSell(g, p, amount) : p.Money >= amount;
+        bool ok = p.IsBot ? g.CellsLogic.MortgageSell(p, amount) : p.Money >= amount;
         if (ok)
         {
             p.Money -= amount;
@@ -34,9 +33,9 @@ public class PlayerManager
             }
             else if (g.PayToUser.HasValue)
             {
-                var pl = g.FindPlayerBy(g.PayToUser.Value);
-                pl.Money += amount;
-                g.AddRoundMessageByLabel("_player_paid_to_user", g.CurrPlayer.Name, amount, pl.Name);
+                var cellPl = g.FindPlayerBy(g.PayToUser.Value);
+                cellPl.Money += amount;
+                g.AddRoundMessage(g.PayMessage);
                 g.PayToUser = default;
             }
             else
@@ -67,12 +66,12 @@ public class PlayerManager
         var cell = g.CurrCell;
         if (cell.Land && !cell.Owner.HasValue)
         {
-            var ff = BuyLogic.FactorOfBuy(g, bot, cell);
+            var ff = g.BuyingLogic.FactorOfBuy(bot, cell);
             bool needBuy = ff >= 1;
             if (ff == 1 && bot.Money < cell.Cost)
                 needBuy = false;
             else if (ff > 1 && bot.Money < cell.Cost)
-                needBuy = CellsLogic.MortgageSell(g, bot, cell.Cost);
+                needBuy = g.CellsLogic.MortgageSell(bot, cell.Cost);
 
             if (needBuy)
             {
@@ -110,7 +109,7 @@ public class PlayerManager
         }
     }
 
-    public static string GoMortgageCells(Game g, int[] cidArr)
+    public static string ManualMortgageCells(Game g, int[] cidArr)
     {
         string res = "";
         var pl = g.CurrPlayer;
@@ -125,7 +124,7 @@ public class PlayerManager
         return res;
     }
 
-    public static string GoUnmortgageCells(Game g, int[] cidArr)
+    public static string ManualUnmortgageCells(Game g, int[] cidArr)
     {
         string res = "";
         var pl = g.CurrPlayer;

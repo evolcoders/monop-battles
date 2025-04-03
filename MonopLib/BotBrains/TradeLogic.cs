@@ -2,7 +2,7 @@ namespace MonopLib.BotBrains;
 
 public class TradeLogic
 {
-    internal static bool TryDoTrade(Game g)
+    public static bool TryDoTrade(Game g)
     {
         var validBotTrades = GetValidTrades(g, g.CurrPlayer);
         TradeBox found = null;
@@ -24,7 +24,7 @@ public class TradeLogic
         return false;
     }
 
-    internal static List<TradeBox> GetValidTrades(Game g, Player pl)
+    public static List<TradeBox> GetValidTrades(Game g, Player pl)
     {
         List<TradeBox> result = new(10);
         foreach (var trule in g.BotRules.PlayerTradeRules(pl.Id))

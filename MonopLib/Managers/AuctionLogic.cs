@@ -1,17 +1,9 @@
 
-using MonopLib.BotBrains;
-
 namespace MonopLib.Managers;
 
-public interface IAuctionStrategy
-{
-    void InitAuction();
-    void RunActionJob(string command);
-}
 
-public class StandartAuctionStrategy(Game game) : IAuctionStrategy
+public class AuctionManager(Game g)
 {
-    private readonly Game g = game;
 
     public void InitAuction()
     {
@@ -42,7 +34,7 @@ public class StandartAuctionStrategy(Game game) : IAuctionStrategy
         var needbid = NeedBid(pl, cmd);
         if (needbid)
         {
-            auc.NextBid(50);
+            auc.CurrBid += 50;
             auc.LastBiddedPlayerId = pl.Id;
             g.AddRoundMessageByLabel("_player_bid", pl.Name, auc.CurrBid);
 
@@ -59,7 +51,7 @@ public class StandartAuctionStrategy(Game game) : IAuctionStrategy
     private bool NeedBid(Player pl, string cmd)
     {
         var cell = g.CurrAuction.Cell;
-        var fact = BuyLogic.FactorOfBuy(g, pl, cell);
+        var fact = g.BuyingLogic.FactorOfBuy(pl, cell);
         g.CurrAuction.CurrBidFactor = fact;
         var maxCost = cell.Cost * fact;
         var maxMoney = g.CalcPlayerAssets(pl.Id);
@@ -94,7 +86,10 @@ public class StandartAuctionStrategy(Game game) : IAuctionStrategy
             };
 
             SetAucWinner();
-            g.AddRoundMessageByLabel("_player_bought_cell_on_auction", auc.Cell.Title, auc.CurrBid, result);
+            if (count != 0)
+                g.AddRoundMessageByLabel("_player_bought_cell_on_auction", auc.Cell.Title, auc.CurrBid, result);
+            else
+                g.AddRoundMessage("аукцион не состоялся", "auction failed");
 
             g.FinishStep($"auc_finished");
         }

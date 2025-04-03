@@ -1,15 +1,26 @@
+using MonopLib.BotBrains.Interfaces;
+
 namespace MonopLib.BotBrains;
 
-public class BuyLogic
+public class BuyingLogic : IBuyingLogic
 {
-    public static double FactorOfBuy(Game g, Player p, Cell cell)
+    public BuyingLogic(ICellsLogic cellsLogic, Game g)
+    {
+        _CellsLogic = cellsLogic;
+        _Game = g;
+    }
+
+    private Game _Game {get; set;}
+    public ICellsLogic _CellsLogic { get; set; }
+
+    public double FactorOfBuy(Player p, Cell cell)
     {
         var pid = p.Id;
         var cg = cell.Group;
-        var availableMoney = g.CalcPlayerAssets(pid);
+        var availableMoney = _Game.CalcPlayerAssets(pid);
         if (availableMoney < cell.Cost) return 0;
 
-        var myGroupsWithHouses = HousesLogic.GetGroupsWhereNeedBuildHouses(g, pid);
+        var myGroupsWithHouses = _Game.Map.GetGroupsWhereNeedBuildHouses(pid);
         var myGroupsIds = myGroupsWithHouses.Select(g => g.Item1).ToArray();
 
         bool needBuild = myGroupsWithHouses.Count > 0;
@@ -24,7 +35,7 @@ public class BuyLogic
             return ff;
         }
 
-        IEnumerable<Cell> currCellGroup = g.Map.CellsByGroup(cell.Group);
+        IEnumerable<Cell> currCellGroup = _Game.Map.CellsByGroup(cell.Group);
         IEnumerable<Cell> notMine = currCellGroup.Where(x => x.Owner.HasValue && x.Owner != pid);
         int myCount = currCellGroup.Where(x => x.Owner == pid).Count();
 
@@ -37,13 +48,13 @@ public class BuyLogic
         }
         if (aCount == 2 && aOwner.HasValue)
         {
-            var aSum = g.CalcPlayerAssets(aOwner.Value);
+            var aSum = _Game.CalcPlayerAssets(aOwner.Value);
             if (cg == 2 && aSum > 4000) return 4;
             if (cg == 3 && aSum > 4000) return 3;
             if (cg == 4 && aSum > 5000) return 2;
             if (cg == 5 && aSum > 7000) return 2;
         }
-        var manualFactor = GetManualFactor(g.BotRules.AuctionRules, cg, myCount, aCount, myGroupsIds);
+        var manualFactor = GetManualFactor(_Game.BotRules.AuctionRules, cg, myCount, aCount, myGroupsIds);
         if (manualFactor.HasValue)
             return manualFactor.Value;
 
@@ -58,7 +69,7 @@ public class BuyLogic
         return needBuyfactor;
     }
 
-    private static double myPlayerFactor(int cg, int myCount)
+    private double myPlayerFactor(int cg, int myCount)
     {
         var gfactors = cg switch
         {
@@ -77,7 +88,7 @@ public class BuyLogic
         return Convert.ToDouble(gfactors.Split(',')[myCount]);
     }
 
-    private static double AnotherPlayerFactor(int cg, int aCount)
+    private double AnotherPlayerFactor(int cg, int aCount)
     {
         var gfactors = cg switch
         {
@@ -96,7 +107,7 @@ public class BuyLogic
         return Convert.ToDouble(gfactors.Split(',')[aCount]);
     }
 
-    private static double? GetManualFactor(List<ARule> botAuctionRules, int group, int myCount, int aCount, int[] groupsWithHouses)
+    private double? GetManualFactor(List<ARule> botAuctionRules, int group, int myCount, int aCount, int[] groupsWithHouses)
     {
         foreach (var arule in botAuctionRules)
         {
@@ -122,7 +133,7 @@ public class BuyLogic
     но если у оппонента получается своя монополия, то увеличиваем фактор покупки этой карточки,
     так как его монополия дает возможность ему строить дома
     */
-    private static (int, double)[] GroupsWithMaxHouseCount(int group, int maxHousesOnCell)
+    private (int, double)[] GroupsWithMaxHouseCount(int group, int maxHousesOnCell)
     {
         var group1 = new (int, double)[][] {
             [(4000,0), (6000, 1.1)],
@@ -208,13 +219,3 @@ public class BuyLogic
         return factors[group][maxHousesOnCell];
     }
 }
-/*
-        var group1 = new (int, double)[][]
-        {
-            new[] { (8000, 0), (11000,1), (13000, 1.2)},
-            new[] { (8000, 0), (10000,1), (12000, 1.2)},
-            new[] { (5000,0), (7000,  1), (9000,  1.2)},
-        };
-        var factors = new Dictionary<int, (int, double)[][]>
-        { {1,group1} };
- */

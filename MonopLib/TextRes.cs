@@ -11,7 +11,7 @@ internal class TextRes
             "_player_bought_cell" => "вы купили #{0} за ${1}",
             "_player_bought_cell_on_auction" => "{2} купил #{0} за ${1}",
             "_player_rolled" => "{0} выкинул {1}",
-            "_you_visisted_cell" => "{0} вы попали на {1}",
+            "_you_visisted_cell" => "{0} вы попали на #{1}",
             "_player_paid" => "{0} заплатил ${1}",
             "_player_paid_to_user" => "{0} заплатил ${1} игроку {2}",
             "_player_paid_to_exit_from_jail" => "игрок {0} заплатил $500, чтобы выйти из клетки",

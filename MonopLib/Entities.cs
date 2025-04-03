@@ -160,8 +160,6 @@ public class Auction
     public int LastBiddedPlayerId { get; set; }
     public bool Finished { get; set; }
     public List<int> AucPlayers { get; set; }
-
-    public int NextBid(int bidAmount) => CurrBid + bidAmount;
 }
 
 public class ChestCard
