@@ -4,6 +4,18 @@ namespace MonopLib.Managers;
 
 public class PlayerManager
 {
+    public static bool OnlyPay(Game g, int amount)
+    {
+        var p = g.CurrPlayer;
+        bool ok = p.IsBot ? CellsLogic.MortgageSell(g, p, amount) : p.Money >= amount;
+        if (ok)
+        {
+            p.Money -= amount;
+            return true;
+        }
+        return false;
+    }
+
     public static bool Pay(Game g, bool finishRound = true)
     {
         var p = g.CurrPlayer;

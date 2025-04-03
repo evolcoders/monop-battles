@@ -47,7 +47,7 @@ public class PlayerStepsManager
             var oldPos = currPlayer.Pos;
             g.PlayersRolls[currPlayer.Id].Add(g.LastRollAsInt);
             MoveToNewPos(currPlayer, r1, r2);
-            g.AddRoundMessageByLabel("_you_visisted_cell", $"#({oldPos}->#{currPlayer.Pos})", g.CurrCell.Title);
+            g.AddRoundMessageByLabel("_you_visisted_cell", $"(#{oldPos}->#{currPlayer.Pos})", g.CurrCell.Title);
 
             ProcessPosition(g);
         }
@@ -71,12 +71,14 @@ public class PlayerStepsManager
     {
         var pl = g.CurrPlayer;
         (int r1, int r2) = g.LastRoll;
+        int maxMoneys = g.CalcPlayerAssets(pl.Id, false);
 
-        if (pl.IsBot && pl.Police > 0 && CalcJailExit(g))
+        if (pl.IsBot && pl.Police > 0 && CalcJailExit(g, pl.Id) && maxMoneys > 500)
         {
-            pl.Money -= 500;
+            //pl.Money -= 500;
             pl.Police = 0;
-            g.AddRoundMessage("заплатил $500 чтобы выйти из тюрьмы", "you paid $500 to exit from jail");
+            PlayerManager.OnlyPay(g, 500);
+            g.AddRoundMessage($"{pl.Name} заплатил $500 чтобы выйти из тюрьмы", $"{pl.Name} paid $500 to exit from jail");
         }
         var rolls = $"({r1},{r2})";
         var plInfo = $"{pl.Name}(money: ${pl.Money})";
@@ -118,9 +120,10 @@ public class PlayerStepsManager
         return PlayerAction.RollAndGo;
     }
 
-    static bool CalcJailExit(Game g)
+    static bool CalcJailExit(Game g, int pid)
     {
-        return true;
+        bool group4or5or6isMonop = g.Map.GroupNotMyMonop(pid, [3, 4, 5, 6]);
+        return !group4or5or6isMonop;
     }
 
     static bool CheckOnTripple(List<int> rolls, int count)
@@ -222,7 +225,6 @@ public class PlayerStepsManager
             //заплатить
             case 12:
                 g.ToPayAndFinish(card.Money);
-                g.FinishAfterChestCard();
                 break;
             case 15:
                 var hh = g.Map.GetHotelsAndHouses(p.Id);

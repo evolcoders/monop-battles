@@ -8,7 +8,7 @@ public class CellsLogic
 		if (p.Money >= amount) return true;
 
 		//1 - mortage non monopoly lands
-		Mortgage(g, p, amount);
+		Mortgage(g, p, amount, false);
 
 		//2 - sell houses
 		HousesLogic.SellHouses(g, p, amount);

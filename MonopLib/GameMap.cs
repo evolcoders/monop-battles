@@ -15,6 +15,8 @@ public class GameMap
 	public IEnumerable<Cell> CellsByUser(int pid) => Cells.Where(x => x.Owner == pid);
 	public IEnumerable<Cell> CellsByGroup(int group) => Cells.Where(x => x.Group == group);
 	public Cell[] CellsByType(int type) => Cells.Where(x => x.Type == type).ToArray();
+	public bool GroupNotMyMonop(int pid, int[] groups) => Cells.Any(x => groups.Contains(x.Group) && x.IsMonopoly && x.Owner != pid);
+
 	public Cell[] CellsByUserByGroup(int pid, int group) => Cells.Where(x => x.Owner == pid && x.Group == group).ToArray();
 	public Cell[] CellsByUserByType(int pid, int type) => Cells.Where(x => x.Owner == pid && x.Type == type).ToArray();
 
