@@ -1,0 +1,23 @@
+rgroup| chest_type | text 					| money | pos
+
+1|		1|			get money $100		    |100
+1|		1|			get money $1.5K		    |1500
+1|		1|			get money $2K			|2000
+
+12|		1|			need pay bank			|100
+12|		1|			You have to renovate your condo/flat. Pay $350.|350
+
+
+2|		1|			go to trans				|	*|		5
+2| 		2|			Advance to go 		    |	*|		0
+2|		2|			go to Police			|	*|		10
+2|		2|			go to	Venezia			|	*|		11
+2|		2|			go to	Moscow			|	*|		24
+2|		2|			go to	Tokyo			|	*|		39
+
+3|		2|			go to 3 cells back
+4|		2|			Pay each player $500	|500
+
+5|		1|			Get out of jail free
+
+15|		1|			You are assessed for street repairs – $100 per house, $400 per hotel
